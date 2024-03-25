@@ -1,0 +1,49 @@
+name: Deploy App code to AWS CluudFront
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Install dependencies and build API code
+        run: |
+          npm install
+
+      - name: Create deployment ZIP file
+        run: |
+          zip -r function_code.zip . -x "*.git*" -x "*.github*"
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy to S3
+        run: |
+          aws s3 sync ./build s3://github-action1122 --delete
+
+      # - name: Invalidate CloudFront cache
+      #   run: |
+      #     aws cloudfront create-invalidation --distribution-id <your CloudFront distribution ID> --paths "/*"
+
+
+
+      # - name: Deploy Lambda Function
+      #   run: |
+      #     aws s3 cp function_code.zip s3://ddpa-api/ddpa
+      #     aws lambda update-function-code --function-name ddpa_api --s3-bucket ddpa-api --s3-key ddpa
