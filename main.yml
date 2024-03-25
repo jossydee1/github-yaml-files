@@ -22,9 +22,8 @@ jobs:
         run: |
           npm install
 
-      - name: Create deployment ZIP file
-        run: |
-          zip -r function_code.zip . -x "*.git*" -x "*.github*"
+      - name: Build and bundle your application
+        run: npx react-scripts build
 
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
@@ -41,9 +40,3 @@ jobs:
       #   run: |
       #     aws cloudfront create-invalidation --distribution-id <your CloudFront distribution ID> --paths "/*"
 
-
-
-      # - name: Deploy Lambda Function
-      #   run: |
-      #     aws s3 cp function_code.zip s3://ddpa-api/ddpa
-      #     aws lambda update-function-code --function-name ddpa_api --s3-bucket ddpa-api --s3-key ddpa
